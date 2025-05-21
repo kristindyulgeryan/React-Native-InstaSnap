@@ -1,7 +1,7 @@
 import { COLORS } from "@/constants/theme";
 import { styles } from "@/styles/auth.styles";
 import { Ionicons } from "@expo/vector-icons";
-import { View, Text } from "react-native";
+import { Image, Text, View } from "react-native";
 
 export default function login() {
   return (
@@ -13,6 +13,15 @@ export default function login() {
         </View>
         <Text style={styles.appName}>Instasnap</Text>
         <Text style={styles.tagline}>Don't miss anything</Text>
+      </View>
+
+      {/* Illustration */}
+      <View style={styles.illustrationContainer}>
+        <Image
+          source={require("../../assets/images/auth-bg-2.png")}
+          style={styles.illustration}
+          resizeMode="contain"
+        />
       </View>
     </View>
   );
