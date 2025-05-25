@@ -21,7 +21,7 @@ export const createPost = mutation({
 
     // create post
     const postId = await ctx.db.insert("posts", {
-      userId: currentUser._id,
+      user: currentUser._id,
       imageUrl,
       storageId: args.storageId,
       caption: args.caption,
@@ -53,7 +53,7 @@ export const getFeedPosts = query({
 
     const postsWithInfo = await Promise.all(
       posts.map(async (post) => {
-        const postAuthor = await ctx.db.get(post.userId);
+        const postAuthor = await ctx.db.get(post.user);
 
         const like = await ctx.db
           .query("likes")
@@ -76,7 +76,7 @@ export const getFeedPosts = query({
             username: postAuthor?.username,
             image: postAuthor?.image,
           },
-          isLike: !!like,
+          isLiked: !!like,
           isBookmarked: !!bookmark,
         };
       })

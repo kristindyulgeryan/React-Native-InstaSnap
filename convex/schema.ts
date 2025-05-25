@@ -15,13 +15,13 @@ export default defineSchema({
   }).index("by_clerk_id", ["clerkId"]),
 
   posts: defineTable({
-    userId: v.id("users"),
+    user: v.id("users"),
     imageUrl: v.string(),
     storageId: v.id("_storage"), // will be needed when we need to delete a post
     caption: v.optional(v.string()),
     likes: v.number(),
     comments: v.number(),
-  }).index("by_user", ["userId"]),
+  }).index("by_user", ["user"]),
 
   likes: defineTable({
     userId: v.id("users"),
