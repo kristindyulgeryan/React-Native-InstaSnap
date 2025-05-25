@@ -12,6 +12,7 @@ const createTokenCache = (): TokenCache => {
         } else {
           console.log("No values stored under key: " + key);
         }
+        return item;
       } catch (error) {
         console.log("Error getting token from cache: ", error);
         await SecureStore.deleteItemAsync(key);

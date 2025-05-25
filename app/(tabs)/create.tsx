@@ -1,12 +1,17 @@
 import { COLORS } from "@/constants/theme";
+import { api } from "@/convex/_generated/api";
+
 import { styles } from "@/styles/create.styles";
 import { useUser } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
-import * as ImagePicker from "expo-image-picker";
+import { useMutation } from "convex/react";
+import * as FileSystem from "expo-file-system";
 import { Image } from "expo-image";
+import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
+  Alert,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
@@ -35,7 +40,96 @@ export default function CreateScreen() {
     if (!result.canceled) setSelectedImage(result.assets[0].uri);
   };
 
-  console.log(selectedImage);
+  const generateUploadUrl = useMutation(api.posts.generateUploadUrl);
+  const createPost = useMutation(api.posts.createPost);
+
+  // const handleShare = async () => {
+  //   if (!selectedImage) return;
+
+  //   if (Platform.OS === "web") {
+  //     alert("Sharing is only supported on mobile devices.");
+  //     return;
+  //   }
+
+  //   try {
+  //     setIsSharing(true);
+  //     const uploadUrl = await generateUploadUrl();
+
+  //     const uploadResult = await FileSystem.uploadAsync(
+  //       uploadUrl,
+  //       selectedImage,
+  //       {
+  //         httpMethod: "POST",
+  //         uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
+  //         mimeType: "image/jpeg",
+  //       }
+  //     );
+
+  //     if (uploadResult.status !== 200) throw new Error("Image upload failed");
+  //     const { storageId } = JSON.parse(uploadResult.body);
+
+  //     await createPost({ storageId, caption });
+
+  //     router.push("/(tabs)");
+  //   } catch (error) {
+  //     console.log("Error sharing post", error);
+  //   } finally {
+  //     setIsSharing(false);
+  //   }
+  // };
+  const handleShare = async () => {
+    if (!selectedImage) return;
+
+    try {
+      setIsSharing(true);
+
+      if (Platform.OS === "web") {
+        const response = await fetch(selectedImage);
+        const blob = await response.blob();
+
+        const uploadUrl = await generateUploadUrl();
+
+        const uploadResponse = await fetch(uploadUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": blob.type,
+          },
+          body: blob,
+        });
+
+        if (!uploadResponse.ok) throw new Error("Web image upload failed");
+
+        const { storageId } = await uploadResponse.json();
+
+        await createPost({ storageId, caption });
+        router.push("/(tabs)");
+      } else {
+        const uploadUrl = await generateUploadUrl();
+
+        const uploadResult = await FileSystem.uploadAsync(
+          uploadUrl,
+          selectedImage,
+          {
+            httpMethod: "POST",
+            uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
+            mimeType: "image/jpeg",
+          }
+        );
+
+        if (uploadResult.status !== 200) throw new Error("Image upload failed");
+
+        const { storageId } = JSON.parse(uploadResult.body);
+
+        await createPost({ storageId, caption });
+        router.push("/(tabs)");
+      }
+    } catch (error) {
+      console.log("Error sharing post", error);
+      Alert.alert("Failed to share post");
+    } finally {
+      setIsSharing(false);
+    }
+  };
 
   if (!selectedImage) {
     return (
@@ -87,7 +181,7 @@ export default function CreateScreen() {
               isSharing && styles.shareButtonDisabled,
             ]}
             disabled={isSharing || !selectedImage}
-            // onPress={handleShare}
+            onPress={handleShare}
           >
             {isSharing ? (
               <ActivityIndicator size="small" color={COLORS.primary} />

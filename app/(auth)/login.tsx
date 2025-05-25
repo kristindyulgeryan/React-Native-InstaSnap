@@ -5,7 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 
-export default function login() {
+export default function Login() {
   // useSSo -> single sign on
 
   const { startSSOFlow } = useSSO();
@@ -34,7 +34,7 @@ export default function login() {
           <Ionicons name="leaf" size={32} color={COLORS.primary} />
         </View>
         <Text style={styles.appName}>Instasnap</Text>
-        <Text style={styles.tagline}>Don't miss anything</Text>
+        <Text style={styles.tagline}>Dont miss anything</Text>
       </View>
 
       {/* Illustration */}
