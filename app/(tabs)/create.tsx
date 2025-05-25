@@ -32,7 +32,7 @@ export default function CreateScreen() {
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: "images",
-      allowsEditing: true,
+      allowsEditing: Platform.OS !== "web",
       aspect: [1, 1],
       quality: 0.8,
     });
