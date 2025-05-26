@@ -11,9 +11,11 @@ import {
   Modal,
   Platform,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import Comment from "./Comment";
 import { Loader } from "./Loader";
 
 type CommentModal = {
@@ -23,7 +25,8 @@ type CommentModal = {
   onCommentAdded: () => void;
 };
 
-export default function CommentsModal({
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export default function CommentModal({
   onClose,
   onCommentAdded,
   postId,
@@ -32,9 +35,23 @@ export default function CommentsModal({
   const [newComment, setNewComment] = useState("");
 
   const comments = useQuery(api.comments.getComments, { postId });
-  const addComments = useMutation(api.comments.addComment);
+  const addComment = useMutation(api.comments.addComment);
 
-  const handleAddComment = async () => {};
+  const handleAddComment = async () => {
+    if (!newComment.trim()) return;
+
+    try {
+      await addComment({
+        content: newComment,
+        postId,
+      });
+
+      setNewComment("");
+      onCommentAdded();
+    } catch (error) {
+      console.log("Error adding comment:", error);
+    }
+  };
 
   return (
     <Modal
@@ -65,6 +82,31 @@ export default function CommentsModal({
             contentContainerStyle={styles.commentsList}
           />
         )}
+
+        <View style={styles.commentInput}>
+          <TextInput
+            style={styles.input}
+            placeholder="Add a comment..."
+            placeholderTextColor={COLORS.grey}
+            value={newComment}
+            onChangeText={setNewComment}
+            multiline
+          />
+
+          <TouchableOpacity
+            onPress={handleAddComment}
+            disabled={!newComment.trim()}
+          >
+            <Text
+              style={[
+                styles.postButton,
+                !newComment.trim() && styles.postButtonDisabled,
+              ]}
+            >
+              Post
+            </Text>
+          </TouchableOpacity>
+        </View>
       </KeyboardAvoidingView>
     </Modal>
   );

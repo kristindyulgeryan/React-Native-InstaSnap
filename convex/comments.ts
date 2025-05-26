@@ -52,10 +52,13 @@ export const getComments = query({
       comments.map(async (comment) => {
         const user = await ctx.db.get(comment.userId);
         return {
-          ...comment,
+          _id: comment._id,
+          postId: comment.postId,
+          content: comment.content,
+          _creationTime: comment._creationTime,
           user: {
-            fullname: user!.fullname,
-            image: user!.image,
+            fullname: user?.fullname ?? "Unknown",
+            image: user?.image ?? "",
           },
         };
       })
