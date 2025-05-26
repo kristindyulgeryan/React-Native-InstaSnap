@@ -1,11 +1,30 @@
 import { COLORS } from "@/constants/theme";
+import { Id } from "@/convex/_generated/dataModel";
 import { styles } from "@/styles/feed.styles";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { Link } from "expo-router";
 import { Text, TouchableOpacity, View } from "react-native";
 
-export default function Post({ post }: { post: any }) {
+type PostProps = {
+  post: {
+    _id: Id<"posts">;
+    imageUrl: string;
+    caption?: string;
+    likes: number;
+    comments: number;
+    _creationTime: number;
+    isLiked: boolean;
+    isBookmarked: boolean;
+    author: {
+      _id: string;
+      username: string;
+      image: string;
+    };
+  };
+};
+
+export default function Post({ post }: PostProps) {
   return (
     <View style={styles.post}>
       {/* post header */}
