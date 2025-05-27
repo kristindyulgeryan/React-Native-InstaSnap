@@ -11,8 +11,8 @@ import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-  Alert,
   ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -121,6 +121,9 @@ export default function CreateScreen() {
         const { storageId } = JSON.parse(uploadResult.body);
 
         await createPost({ storageId, caption });
+
+        setSelectedImage(null);
+        setCaption("");
         router.push("/(tabs)");
       }
     } catch (error) {
