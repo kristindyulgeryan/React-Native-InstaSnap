@@ -147,7 +147,7 @@ export default function Post({ post }: PostProps) {
             ? `${likesCount.toLocaleString()} likes`
             : "Be the first to like"}
         </Text>
-        {post.caption && (
+        {typeof post.caption === "string" && (
           <View style={styles.captionContainer}>
             <Text style={styles.captionUsername}>{post.author.username}</Text>
             <Text style={styles.captionText}>{post.caption}</Text>
@@ -157,7 +157,7 @@ export default function Post({ post }: PostProps) {
         {commentsCount > 0 && (
           <TouchableOpacity onPress={() => setShowComments(true)}>
             <Text style={styles.commentText}>
-              View all {commentsCount} comments
+              View all {commentsCount.toLocaleString()} comments
             </Text>
           </TouchableOpacity>
         )}

@@ -3,8 +3,8 @@ import { mutation, query } from "./_generated/server";
 import { getAuthenticatedUser } from "./users";
 
 export const generateUploadUrl = mutation(async (ctx) => {
-  const identitiy = await ctx.auth.getUserIdentity();
-  if (!identitiy) throw new Error("Unauthorized");
+  const identity = await ctx.auth.getUserIdentity();
+  if (!identity) throw new Error("Unauthorized");
   return await ctx.storage.generateUploadUrl();
 });
 
@@ -13,6 +13,7 @@ export const createPost = mutation({
     caption: v.optional(v.string()),
     storageId: v.id("_storage"),
   },
+
   handler: async (ctx, args) => {
     const currentUser = await getAuthenticatedUser(ctx);
 
@@ -21,7 +22,7 @@ export const createPost = mutation({
 
     // create post
     const postId = await ctx.db.insert("posts", {
-      user: currentUser._id,
+      userId: currentUser._id,
       imageUrl,
       storageId: args.storageId,
       caption: args.caption,
@@ -30,7 +31,6 @@ export const createPost = mutation({
     });
 
     // increment user's post by 1
-
     await ctx.db.patch(currentUser._id, {
       posts: currentUser.posts + 1,
     });
@@ -44,16 +44,14 @@ export const getFeedPosts = query({
     const currentUser = await getAuthenticatedUser(ctx);
 
     // get all posts
-
     const posts = await ctx.db.query("posts").order("desc").collect();
 
     if (posts.length === 0) return [];
 
     // enhance posts with userdata and interaction status
-
     const postsWithInfo = await Promise.all(
       posts.map(async (post) => {
-        const postAuthor = (await ctx.db.get(post.user))!;
+        const postAuthor = (await ctx.db.get(post.userId))!;
 
         const like = await ctx.db
           .query("likes")
@@ -74,7 +72,7 @@ export const getFeedPosts = query({
           author: {
             _id: postAuthor?._id,
             username: postAuthor?.username,
-            image: postAuthor?.image ?? "",
+            image: postAuthor?.image,
           },
           isLiked: !!like,
           isBookmarked: !!bookmark,
@@ -120,9 +118,9 @@ export const toggleLike = mutation({
 
       // if this is not my post create a notification
 
-      if (currentUser._id !== post.user) {
+      if (currentUser._id !== post.userId) {
         await ctx.db.insert("notifications", {
-          receiverId: post.user,
+          receiverId: post.userId,
           senderId: currentUser._id,
           type: "like",
           postId: args.postId,
@@ -143,7 +141,7 @@ export const deletePost = mutation({
     if (!post) throw new Error("Post not found");
 
     // verify ownership
-    if (post.user !== currentUser._id)
+    if (post.userId !== currentUser._id)
       throw new Error("Not authorized to delete this post");
 
     // delete associated likes
@@ -160,7 +158,7 @@ export const deletePost = mutation({
     // delete associated comments
     const comments = await ctx.db
       .query("comments")
-      .withIndex("by_post_id", (q) => q.eq("postId", args.postId))
+      .withIndex("by_post", (q) => q.eq("postId", args.postId))
       .collect();
 
     for (const comment of comments) {

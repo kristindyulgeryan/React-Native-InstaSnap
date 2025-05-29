@@ -1,5 +1,7 @@
 import { Loader } from "@/components/Loader";
 import Post from "@/components/Post";
+import Story from "@/components/Story";
+import { STORIES } from "@/constants/mock-data";
 import { COLORS } from "@/constants/theme";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@clerk/clerk-expo";
@@ -13,8 +15,6 @@ import {
   View,
 } from "react-native";
 import { styles } from "../../styles/feed.styles";
-import { STORIES } from "@/constants/mock-data";
-import Story from "@/components/Story";
 
 export default function Index() {
   const { signOut } = useAuth();
@@ -36,7 +36,17 @@ export default function Index() {
 
       <FlatList
         data={posts}
-        renderItem={({ item }) => <Post post={item} />}
+        renderItem={({ item }) => (
+          <Post
+            post={{
+              ...item,
+              author: {
+                ...item.author,
+                image: item.author.image ?? "",
+              },
+            }}
+          />
+        )}
         keyExtractor={(item) => item._id}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 60 }}

@@ -24,8 +24,8 @@ http.route({
       return new Response("Missing headers", { status: 400 });
     }
 
-    const playload = await request.json();
-    const body = JSON.stringify(playload);
+    const payload = await request.json();
+    const body = JSON.stringify(payload);
 
     const wh = new Webhook(webhookSecret);
     let evt: any;
@@ -34,8 +34,8 @@ http.route({
     try {
       evt = wh.verify(body, {
         "svix-id": svix_id,
-        "svix-signature": svix_signature,
         "svix-timestamp": svix_timestamp,
+        "svix-signature": svix_signature,
       }) as any;
     } catch (err) {
       console.error("Error verifying webhook", err);
@@ -45,7 +45,8 @@ http.route({
     const eventType = evt.type;
 
     if (eventType === "user.created") {
-      const { id, email_addresses, first_name, last_name, imageUrl } = evt.data;
+      const { id, email_addresses, first_name, last_name, image_url } =
+        evt.data;
 
       const email = email_addresses[0].email_address;
       const name = `${first_name || ""} ${last_name || ""}`.trim();
@@ -54,7 +55,7 @@ http.route({
         await ctx.runMutation(api.users.createUser, {
           email,
           fullname: name,
-          image: imageUrl,
+          image: image_url,
           clerkId: id,
           username: email.split("@")[0],
         });

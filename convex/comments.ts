@@ -26,9 +26,9 @@ export const addComment = mutation({
 
     // create a notification if it's not my own post
 
-    if (post.user !== currentUser._id) {
+    if (post.userId !== currentUser._id) {
       await ctx.db.insert("notifications", {
-        receiverId: post.user,
+        receiverId: post.userId,
         senderId: currentUser._id,
         type: "comment",
         postId: args.postId,
@@ -45,7 +45,7 @@ export const getComments = query({
   handler: async (ctx, args) => {
     const comments = await ctx.db
       .query("comments")
-      .withIndex("by_post_id", (q) => q.eq("postId", args.postId))
+      .withIndex("by_post", (q) => q.eq("postId", args.postId))
       .collect();
 
     const commentsWithInfo = await Promise.all(

@@ -10,18 +10,18 @@ export default defineSchema({
     image: v.optional(v.string()),
     followers: v.number(),
     following: v.number(),
-    clerkId: v.string(),
     posts: v.number(),
+    clerkId: v.string(),
   }).index("by_clerk_id", ["clerkId"]),
 
   posts: defineTable({
-    user: v.id("users"),
+    userId: v.id("users"),
     imageUrl: v.string(),
     storageId: v.id("_storage"), // will be needed when we need to delete a post
     caption: v.optional(v.string()),
     likes: v.number(),
     comments: v.number(),
-  }).index("by_user", ["user"]),
+  }).index("by_user", ["userId"]),
 
   likes: defineTable({
     userId: v.id("users"),
@@ -34,7 +34,7 @@ export default defineSchema({
     userId: v.id("users"),
     postId: v.id("posts"),
     content: v.string(),
-  }).index("by_post_id", ["postId"]),
+  }).index("by_post", ["postId"]),
 
   follows: defineTable({
     followerId: v.id("users"),
