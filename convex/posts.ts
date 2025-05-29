@@ -117,7 +117,6 @@ export const toggleLike = mutation({
       await ctx.db.patch(args.postId, { likes: post.likes + 1 });
 
       // if this is not my post create a notification
-
       if (currentUser._id !== post.userId) {
         await ctx.db.insert("notifications", {
           receiverId: post.userId,
@@ -145,7 +144,6 @@ export const deletePost = mutation({
       throw new Error("Not authorized to delete this post");
 
     // delete associated likes
-
     const likes = await ctx.db
       .query("likes")
       .withIndex("by_post", (q) => q.eq("postId", args.postId))
@@ -166,7 +164,6 @@ export const deletePost = mutation({
     }
 
     // delete associated bookmarks
-
     const bookmarks = await ctx.db
       .query("bookmarks")
       .withIndex("by_post", (q) => q.eq("postId", args.postId))
@@ -176,6 +173,16 @@ export const deletePost = mutation({
       await ctx.db.delete(bookmark._id);
     }
 
+    //  delete associated notifications
+    const notifications = await ctx.db
+      .query("notifications")
+      .withIndex("by_post", (q) => q.eq("postId", args.postId))
+      .collect();
+
+    for (const notification of notifications) {
+      await ctx.db.delete(notification._id);
+    }
+
     // delete the storage file
     await ctx.storage.delete(post.storageId);
 
@@ -183,7 +190,6 @@ export const deletePost = mutation({
     await ctx.db.delete(args.postId);
 
     // decrement user's post count by 1
-
     await ctx.db.patch(currentUser._id, {
       posts: Math.max(0, (currentUser.posts || 1) - 1),
     });
