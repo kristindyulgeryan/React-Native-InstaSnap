@@ -22,13 +22,11 @@ type CommentModal = {
   postId: Id<"posts">;
   visible: boolean;
   onClose: () => void;
-  onCommentAdded: () => void;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export default function CommentModal({
   onClose,
-  onCommentAdded,
   postId,
   visible,
 }: CommentModal) {
@@ -47,7 +45,6 @@ export default function CommentModal({
       });
 
       setNewComment("");
-      onCommentAdded();
     } catch (error) {
       console.log("Error adding comment:", error);
     }
