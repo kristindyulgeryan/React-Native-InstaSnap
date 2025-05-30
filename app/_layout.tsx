@@ -6,6 +6,7 @@ import { SplashScreen } from "expo-router";
 import { useCallback, useEffect } from "react";
 import { Platform } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -35,6 +36,7 @@ export default function RootLayout() {
           <InitialLayout />
         </SafeAreaView>
       </SafeAreaProvider>
+      <StatusBar style="light" />
     </ClerkAndConvexProvider>
   );
 }
