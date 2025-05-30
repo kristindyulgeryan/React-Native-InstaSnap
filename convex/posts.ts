@@ -216,3 +216,13 @@ export const getPostsByUser = query({
     return posts;
   },
 });
+
+export const getUserProfile = query({
+  args: { id: v.id("users") },
+  handler: async (ctx, args) => {
+    const user = await ctx.db.get(args.id);
+    if (!user) throw new Error("User not found");
+
+    return user;
+  },
+});
